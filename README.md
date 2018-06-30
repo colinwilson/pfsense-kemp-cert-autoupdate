@@ -1,6 +1,8 @@
-### Bash script that auto-updates certificates on KEMPs Loadmaster Load balancer via pfSense's ACME package.
+## Bash script that auto-updates certificates on KEMPs Loadmaster Load balancer via pfSense's ACME package.
 
 #### Instructions
+
+See https://colinwilson.uk/2017/06/19/auto-update-ssl-certificates-on-kemp-loadmaster-via-pfsense--lets-encrypt/
 
 Upload the script to a custom location in your pfSense (e.g. `/home/custom/`).
 
