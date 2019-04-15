@@ -2,13 +2,14 @@
 
 #
 # Title: Auto-Update & Upload LetsEncrypt Certs to KEMP LoadMaster
-# Guide/Source: https://colinwilson.uk/2017/06/19/auto-update-ssl-certificates-on-kemp-loadmaster-via-pfsense--lets-encrypt/
+# Guide/Source: https://colinwilson.uk/2017/06/19/auto-update-ssl-certificates-on-kemp-loadmaster-via-pfsense-lets-encrypt/
 # Created: 12/06/2017
-# Author: Colin Wilson @colinwilson
+# Update: 05/12/2018
+# Author: Colin Wilson [https://github.com/colinwilson]
 # Vendor or Software Link: https://www.pfsense.org/ , https://kemptechnologies.com
-# Version: 1.1.0
+# Version: 1.2.1
 # Category: BASH Shell Script
-# Tested on: pfSense 2.3.4 & KEMP LM 7.2.38
+# Tested on: pfSense 2.4.4 & KEMP LM 7.2.43
 #
 # e.g. sh /home/custom/kemp-cert-update.sh -f /home/custom/cert-auto-update.cert.pem -d mydomain.com -i 172.16.2.10
 
@@ -66,7 +67,7 @@ else
 fi
 
 # Concatenate certificate and key
-cat /tmp/acme/"${CERT_NAME}"/"${CERT_NAME}"/"$CERT_NAME".cer /tmp/acme/"${CERT_NAME}"/"${CERT_NAME}"/"$CERT_NAME".key > /tmp/acme/"${CERT_NAME}"/"${CERT_NAME}"/"$CERT_NAME".full.pem
+cat /conf/acme/"$CERT_NAME".crt /conf/acme/"$CERT_NAME".key > /tmp/"$CERT_NAME".full.pem
 
 # Upload certificate to KEMP LoadMaster
 if [ -z "$BASIC_AUTH" ]
@@ -74,7 +75,7 @@ then
     :
 else
       upload_cert_basic() {
-            curl -sS -X POST --data-binary "@/tmp/acme/${CERT_NAME}/${CERT_NAME}/${CERT_NAME}.full.pem" -k "https://${BASIC_AUTH}@${KEMP_IP}/access/addcert?cert=${CERT_NAME}&replace=${REPLACE}"
+            curl -sS -X POST --data-binary "@/tmp/${CERT_NAME}.full.pem" -k "https://${BASIC_AUTH}@${KEMP_IP}/access/addcert?cert=${CERT_NAME}&replace=${REPLACE}"
         }
 
       upload_cert_basic
@@ -85,10 +86,10 @@ then
     :
 else
       upload_cert() {
-            curl -sS -X POST --data-binary "@/tmp/acme/${CERT_NAME}/${CERT_NAME}/${CERT_NAME}.full.pem" -k -E "$KEMP_API_ACCESS_CERT_PATH" "https://${KEMP_IP}/access/addcert?cert=${CERT_NAME}&replace=${REPLACE}"
+            curl -sS -X POST --data-binary "@/tmp/${CERT_NAME}.full.pem" -k -E "$KEMP_API_ACCESS_CERT_PATH" "https://${KEMP_IP}/access/addcert?cert=${CERT_NAME}&replace=${REPLACE}"
         }
       upload_cert
 fi
 
 # Delete concatenated certificate file
-rm /tmp/acme/"${CERT_NAME}"/"${CERT_NAME}"/"$CERT_NAME".full.pem
+rm /tmp/"$CERT_NAME".full.pem
